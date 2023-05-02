@@ -1,6 +1,7 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
+    {% form_theme serieForm 'bootstrap_5_layout.html.twig' %}
     {{ form(serieForm) }}
 {% endblock %}
 

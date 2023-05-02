@@ -5,7 +5,9 @@ namespace App\Controller;
 use App\Entity\Serie;
 use App\Form\SerieType;
 use App\Repository\SerieRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -18,6 +20,7 @@ class SerieController extends AbstractController
     ): Response
     {
         $tabDeSeries = $serieRepository->findAll();
+        dd($tabDeSeries);
         return $this->render(
             'serie/series.html.twig',
             compact('tabDeSeries')
@@ -44,11 +47,23 @@ class SerieController extends AbstractController
     }
 
     #[Route('/ajouter', name: '_ajouter')]
-    public function ajouter(): Response
+    public function ajouter(
+        Request $request,
+        EntityManagerInterface $entityManager
+    ): Response
     {
         $serie = new Serie();
         $serie->setNom("Game Of Throne");
         $serieForm = $this->createForm(SerieType::class, $serie);
+
+        $serieForm->handleRequest($request);
+
+        if ($serieForm->isSubmitted() && $serieForm->isValid()) {
+            $entityManager->persist($serie);
+            $entityManager->flush();
+            return $this->redirectToRoute('serie_series');
+        }
+
         return $this->render(
             'serie/ajouter.html.twig',
             compact('serieForm')
